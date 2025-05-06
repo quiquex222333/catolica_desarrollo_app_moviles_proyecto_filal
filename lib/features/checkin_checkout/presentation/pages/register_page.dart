@@ -29,7 +29,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       final tempFile = File(picked.path);
 
       final inputImage = InputImage.fromFile(tempFile);
-      final options = FaceDetectorOptions(enableContours: false, enableClassification: false);
+      final options = FaceDetectorOptions(
+        enableContours: false,
+        enableClassification: false,
+      );
       final faceDetector = FaceDetector(options: options);
       final faces = await faceDetector.processImage(inputImage);
       await faceDetector.close();
@@ -41,7 +44,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No se detectó una persona en la imagen.')),
+          const SnackBar(
+            content: Text('No se detectó una persona en la imagen.'),
+          ),
         );
       }
     }
@@ -52,22 +57,27 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
     setState(() => _isProcessing = true);
 
-    // Guardar la imagen en un lugar permanente
     final appDir = await getApplicationDocumentsDirectory();
     final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
     final savedImage = await _imageFile!.copy('${appDir.path}/$fileName');
 
     final record = Record(
-      fullName: _nameController.text,
+      fullName: _nameController.text.trim(),
       photoPath: savedImage.path,
       timestamp: DateTime.now(),
       type: _selectedType,
     );
 
-    await ref.read(recordNotifierProvider.notifier).addRecord(record);
-
-    if (!mounted) return;
-    Navigator.pop(context);
+    try {
+      await ref.read(recordNotifierProvider.notifier).addRecord(record);
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+      );
+    } finally {
+      setState(() => _isProcessing = false);
+    }
   }
 
   @override
@@ -95,7 +105,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             DropdownButton<RecordType>(
               value: _selectedType,
               items: const [
-                DropdownMenuItem(value: RecordType.entry, child: Text('Entrada')),
+                DropdownMenuItem(
+                  value: RecordType.entry,
+                  child: Text('Entrada'),
+                ),
                 DropdownMenuItem(value: RecordType.exit, child: Text('Salida')),
               ],
               onChanged: (value) => setState(() => _selectedType = value!),
@@ -105,7 +118,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               onPressed: _isProcessing ? null : _saveRecord,
               icon: const Icon(Icons.save),
               label: const Text('Guardar registro'),
-            )
+            ),
           ],
         ),
       ),
