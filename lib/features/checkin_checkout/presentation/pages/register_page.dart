@@ -72,6 +72,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       await ref.read(recordNotifierProvider.notifier).addRecord(record);
       if (mounted) Navigator.pop(context);
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
       );

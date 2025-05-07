@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:final_project/features/checkin_checkout/domain/usecases/calculate_worked_hours.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -21,24 +22,58 @@ class HistorialPage extends ConsumerWidget {
         data: (records) {
           final filtered = records
               .where((r) => r.fullName.toLowerCase().trim() == fullName.toLowerCase().trim())
-              .toList();
+              .toList()
+            ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
           if (filtered.isEmpty) {
             return const Center(child: Text('No hay registros para esta persona.'));
           }
 
-          return ListView.builder(
-            itemCount: filtered.length,
-            itemBuilder: (context, index) {
-              final record = filtered[index];
-              final formatted = DateFormat('dd/MM/yyyy HH:mm').format(record.timestamp);
+          final summary = CalculateWorkedHours().calculate(records, fullName);
 
-              return ListTile(
-                leading: CircleAvatar(backgroundImage: FileImage(File(record.photoPath))),
-                title: Text(record.type == RecordType.entry ? 'Entrada' : 'Salida'),
-                subtitle: Text(formatted),
-              );
-            },
+          String formatDuration(Duration d) {
+            final h = d.inHours;
+            final m = d.inMinutes.remainder(60);
+            return '${h}h ${m}m';
+          }
+
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Card(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Resumen de horas trabajadas', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Text('Hoy: ${formatDuration(summary.daily)}'),
+                        Text('Esta semana: ${formatDuration(summary.weekly)}'),
+                        Text('Este mes: ${formatDuration(summary.monthly)}'),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    final record = filtered[index];
+                    final formatted = DateFormat('dd/MM/yyyy HH:mm').format(record.timestamp);
+                    return ListTile(
+                      leading: CircleAvatar(backgroundImage: FileImage(File(record.photoPath))),
+                      title: Text(record.type == RecordType.entry ? 'Entrada' : 'Salida'),
+                      subtitle: Text(formatted),
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
