@@ -9,30 +9,29 @@ class SaveRecord {
   Future<void> call(Record record) async {
     final records = await repository.getAllRecords();
 
-    final today = DateTime.now();
-    bool isSameDay(DateTime a, DateTime b) =>
-        a.year == b.year && a.month == b.month && a.day == b.day;
+    // Solo registros de esta persona, ordenados por fecha ascendente
+    final userRecords = records
+        .where((r) => r.fullName.toLowerCase().trim() == record.fullName.toLowerCase().trim())
+        .toList()
+      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
-    final todayRecords = records.where((r) =>
-        isSameDay(r.timestamp, today) &&
-        r.fullName.toLowerCase().trim() == record.fullName.toLowerCase().trim());
+    if (userRecords.isNotEmpty) {
+      final last = userRecords.last;
 
-    final hasEntry = todayRecords.any((r) => r.type == RecordType.entry);
-    final hasExit = todayRecords.any((r) => r.type == RecordType.exit);
-
-    if (record.type == RecordType.exit && !hasEntry) {
-      throw Exception('No se puede registrar salida sin una entrada previa.');
-    }
-
-    if (record.type == RecordType.entry && hasEntry) {
-      throw Exception('Ya se ha registrado una entrada hoy.');
-    }
-
-    if (record.type == RecordType.exit && hasExit) {
-      throw Exception('Ya se ha registrado una salida hoy.');
+      if (last.type == record.type) {
+        if (record.type == RecordType.entry) {
+          throw Exception('Ya se registró una entrada, debe marcar salida antes de una nueva entrada.');
+        } else {
+          throw Exception('Ya se registró una salida, debe marcar entrada antes de una nueva salida.');
+        }
+      }
+    } else {
+      // Si no hay registros y es salida: error
+      if (record.type == RecordType.exit) {
+        throw Exception('No puede marcar salida sin una entrada previa.');
+      }
     }
 
     await repository.saveRecord(record);
   }
 }
-
