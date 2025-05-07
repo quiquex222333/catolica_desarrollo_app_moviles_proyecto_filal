@@ -129,7 +129,31 @@ class _HomePageState extends ConsumerState<HomePage> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, st) => Center(child: Text('Error: $e')),
+              error:
+                  (e, st) => Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: Colors.red,
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Ocurrió un error al cargar los registros.',
+                          style: TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          e.toString().replaceAll('Exception: ', ''),
+                          style: const TextStyle(color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
             ),
           ),
         ],
@@ -149,7 +173,9 @@ class _RecordDetailDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate = DateFormat('dd/MM/yyyy HH:mm').format(record.timestamp);
+    final formattedDate = DateFormat(
+      'dd/MM/yyyy HH:mm',
+    ).format(record.timestamp);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -175,7 +201,8 @@ class _RecordDetailDialog extends StatelessWidget {
                 record.type == RecordType.entry ? 'Entrada' : 'Salida',
                 style: const TextStyle(color: Colors.white),
               ),
-              backgroundColor: record.type == RecordType.entry ? Colors.green : Colors.red,
+              backgroundColor:
+                  record.type == RecordType.entry ? Colors.green : Colors.red,
             ),
             const SizedBox(height: 12),
             ElevatedButton(
@@ -188,4 +215,3 @@ class _RecordDetailDialog extends StatelessWidget {
     );
   }
 }
-

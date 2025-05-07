@@ -20,13 +20,20 @@ class HistorialPage extends ConsumerWidget {
       appBar: AppBar(title: Text('Historial de $fullName')),
       body: recordsAsync.when(
         data: (records) {
-          final filtered = records
-              .where((r) => r.fullName.toLowerCase().trim() == fullName.toLowerCase().trim())
-              .toList()
-            ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+          final filtered =
+              records
+                  .where(
+                    (r) =>
+                        r.fullName.toLowerCase().trim() ==
+                        fullName.toLowerCase().trim(),
+                  )
+                  .toList()
+                ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
           if (filtered.isEmpty) {
-            return const Center(child: Text('No hay registros para esta persona.'));
+            return const Center(
+              child: Text('No hay registros para esta persona.'),
+            );
           }
 
           final summary = CalculateWorkedHours().calculate(records, fullName);
@@ -43,13 +50,18 @@ class HistorialPage extends ConsumerWidget {
                 padding: const EdgeInsets.all(12.0),
                 child: Card(
                   elevation: 3,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Resumen de horas trabajadas', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Resumen de horas trabajadas',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         const SizedBox(height: 8),
                         Text('Hoy: ${formatDuration(summary.daily)}'),
                         Text('Esta semana: ${formatDuration(summary.weekly)}'),
@@ -64,10 +76,16 @@ class HistorialPage extends ConsumerWidget {
                   itemCount: filtered.length,
                   itemBuilder: (context, index) {
                     final record = filtered[index];
-                    final formatted = DateFormat('dd/MM/yyyy HH:mm').format(record.timestamp);
+                    final formatted = DateFormat(
+                      'dd/MM/yyyy HH:mm',
+                    ).format(record.timestamp);
                     return ListTile(
-                      leading: CircleAvatar(backgroundImage: FileImage(File(record.photoPath))),
-                      title: Text(record.type == RecordType.entry ? 'Entrada' : 'Salida'),
+                      leading: CircleAvatar(
+                        backgroundImage: FileImage(File(record.photoPath)),
+                      ),
+                      title: Text(
+                        record.type == RecordType.entry ? 'Entrada' : 'Salida',
+                      ),
                       subtitle: Text(formatted),
                     );
                   },
@@ -77,7 +95,27 @@ class HistorialPage extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Error: $e')),
+        error:
+            (e, st) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Ocurrió un error al cargar los registros.',
+                    style: TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    e.toString().replaceAll('Exception: ', ''),
+                    style: const TextStyle(color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
       ),
     );
   }

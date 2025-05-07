@@ -72,9 +72,40 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       await ref.read(recordNotifierProvider.notifier).addRecord(record);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+      final message = switch (e.toString()) {
+        var msg when msg.contains('una entrada previa') =>
+          'Debes marcar entrada antes de registrar una salida.',
+        var msg when msg.contains('una salida antes') =>
+          'Debes marcar salida antes de registrar otra entrada.',
+        var msg when msg.contains('registró una salida') =>
+          'Ya marcaste salida. Marca entrada cuando regreses.',
+        _ => 'Ocurrió un error inesperado. Intenta de nuevo.',
+      };
+
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: const Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                  SizedBox(width: 8),
+                  Text('Atención'),
+                ],
+              ),
+              content: Text(message),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Entendido'),
+                ),
+              ],
+            ),
       );
     } finally {
       setState(() => _isProcessing = false);
