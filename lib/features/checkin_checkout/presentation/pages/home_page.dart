@@ -73,33 +73,54 @@ class _HomePageState extends ConsumerState<HomePage> {
           Expanded(
             child: recordsAsync.when(
               data: (records) {
-                final filtered = records.where((r) {
-                  final matchesName = r.fullName.toLowerCase().contains(searchQuery);
-                  final matchesDate = selectedDate == null || isSameDay(r.timestamp, selectedDate!);
-                  return matchesName && matchesDate;
-                }).toList();
+                final filtered =
+                    records.where((r) {
+                      final matchesName = r.fullName.toLowerCase().contains(
+                        searchQuery,
+                      );
+                      final matchesDate =
+                          selectedDate == null ||
+                          isSameDay(r.timestamp, selectedDate!);
+                      return matchesName && matchesDate;
+                    }).toList();
 
                 if (filtered.isEmpty) {
-                  return const Center(child: Text('No se encontraron registros.'));
+                  return const Center(
+                    child: Text('No se encontraron registros.'),
+                  );
                 }
 
                 return ListView.builder(
                   itemCount: filtered.length,
                   itemBuilder: (context, index) {
                     final record = filtered[index];
-                    final formattedDate = DateFormat('dd/MM/yyyy HH:mm').format(record.timestamp);
+                    final formattedDate = DateFormat(
+                      'dd/MM/yyyy HH:mm',
+                    ).format(record.timestamp);
 
                     return ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: FileImage(File(record.photoPath)),
+                      leading: GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => _RecordDetailDialog(record: record),
+                          );
+                        },
+                        child: CircleAvatar(
+                          backgroundImage: FileImage(File(record.photoPath)),
+                        ),
                       ),
+
                       title: Text(record.fullName),
-                      subtitle: Text('$formattedDate - ${record.type == RecordType.entry ? "Entrada" : "Salida"}'),
+                      subtitle: Text(
+                        '$formattedDate - ${record.type == RecordType.entry ? "Entrada" : "Salida"}',
+                      ),
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => HistorialPage(fullName: record.fullName),
+                            builder:
+                                (_) => HistorialPage(fullName: record.fullName),
                           ),
                         );
                       },
@@ -120,3 +141,51 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 }
+
+class _RecordDetailDialog extends StatelessWidget {
+  final Record record;
+
+  const _RecordDetailDialog({required this.record});
+
+  @override
+  Widget build(BuildContext context) {
+    final formattedDate = DateFormat('dd/MM/yyyy HH:mm').format(record.timestamp);
+
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.file(File(record.photoPath), height: 200),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              record.fullName,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            Text(formattedDate),
+            const SizedBox(height: 8),
+            Chip(
+              label: Text(
+                record.type == RecordType.entry ? 'Entrada' : 'Salida',
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: record.type == RecordType.entry ? Colors.green : Colors.red,
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
