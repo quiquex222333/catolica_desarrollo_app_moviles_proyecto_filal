@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:final_project/features/checkin_checkout/presentation/pages/historial_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:final_project/features/checkin_checkout/domain/entities/record.dart';
@@ -14,9 +15,7 @@ class HomePage extends ConsumerWidget {
     final recordsAsync = ref.watch(recordNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Registros de empleados'),
-      ),
+      appBar: AppBar(title: const Text('Registros de empleados')),
       body: recordsAsync.when(
         data: (records) {
           if (records.isEmpty) {
@@ -27,16 +26,26 @@ class HomePage extends ConsumerWidget {
             itemCount: records.length,
             itemBuilder: (context, index) {
               final record = records[index];
-              final formattedDate = DateFormat('dd/MM/yyyy HH:mm').format(record.timestamp);
+              final formattedDate = DateFormat(
+                'dd/MM/yyyy HH:mm',
+              ).format(record.timestamp);
 
               return ListTile(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => HistorialPage(fullName: record.fullName),
+                    ),
+                  );
+                },
                 leading: CircleAvatar(
-                  backgroundImage: FileImage(
-                    File(record.photoPath),
-                  ),
+                  backgroundImage: FileImage(File(record.photoPath)),
                 ),
                 title: Text(record.fullName),
-                subtitle: Text('$formattedDate - ${record.type == RecordType.entry ? "Entrada" : "Salida"}'),
+                subtitle: Text(
+                  '$formattedDate - ${record.type == RecordType.entry ? "Entrada" : "Salida"}',
+                ),
               );
             },
           );
