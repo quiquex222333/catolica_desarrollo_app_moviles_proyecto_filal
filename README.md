@@ -41,11 +41,8 @@ Una aplicación móvil desarrollada en **Flutter** que permite registrar las ent
 ## 🖼️ Vista previa (GIFs e Imágenes)
 
 ### 🎥 Flujo de uso
-| Registro con cámara | Historial por empleado | Cálculo de horas trabajadas |
-|---------------------|------------------------|------------------------------|
-| ![registro](docs/registro.gif) | ![historial](docs/historial.gif) | ![horas](docs/horas.gif) |
-
-> 💡 Guarda tus capturas de pantalla o grabaciones en `/docs/` y actualiza los nombres si cambian.
+Haz click sobre la imagen para ver el video :D
+[![Mira el video](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSFvYnevTpW6ZalCiz1grTyy2HmoU7kjeFcg&s)](https://drive.google.com/file/d/1FAjwsM_9qLBNKyaZVUHJ9ePG7rw1wV9m/view?usp=sharing)
 
 ---
 
@@ -87,3 +84,4 @@ flutter build apk --release
 ```
 build/app/outputs/flutter-apk/app-release.apk
 ```
+
