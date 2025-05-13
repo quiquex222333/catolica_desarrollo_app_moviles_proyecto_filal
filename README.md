@@ -42,6 +42,7 @@ Una aplicación móvil desarrollada en **Flutter** que permite registrar las ent
 
 ### 🎥 Flujo de uso
 Haz click sobre la imagen para ver el video :D
+
 [![Mira el video](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSFvYnevTpW6ZalCiz1grTyy2HmoU7kjeFcg&s)](https://drive.google.com/file/d/1FAjwsM_9qLBNKyaZVUHJ9ePG7rw1wV9m/view?usp=drive_link)
 
 ---
